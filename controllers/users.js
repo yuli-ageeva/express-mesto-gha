@@ -3,31 +3,33 @@ const NotFoundError = require('../errors/NotFoundError');
 const RequestError = require('../errors/RequestError');
 const InternalServerError = require('../errors/InternalServerError');
 
-function getUsers(req, res) {
+function getUsers(req, res, next) {
   User.find({})
     .then((users) => {
       res.send(users);
     })
     .catch(() => {
-      throw new InternalServerError('На сервере произошла ошибка');
+      next(new InternalServerError('На сервере произошла ошибка'));
     });
 }
 
-function getUserById(req, res) {
+function getUserById(req, res, next) {
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
       }
-      res.send(user);
+      res.send({
+        data: user,
+      });
     })
     .catch(() => {
-      throw new InternalServerError('На сервере произошла ошибка');
+      next(new InternalServerError('На сервере произошла ошибка'));
     });
 }
 
-function createUser(req, res) {
+function createUser(req, res, next) {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
@@ -35,14 +37,14 @@ function createUser(req, res) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new RequestError('Переданы некорректные данные при создании пользователя');
+        next(new RequestError('Переданы некорректные данные при создании пользователя'));
       } else {
-        throw new InternalServerError('На сервере произошла ошибка');
+        next(err);
       }
     });
 }
 
-function updateUserProfile(req, res) {
+function updateUserProfile(req, res, next) {
   const { name, about } = req.body;
   const userId = req.user._id;
 
@@ -54,11 +56,11 @@ function updateUserProfile(req, res) {
       res.send(user);
     })
     .catch(() => {
-      throw new InternalServerError('На сервере произошла ошибка');
+      next(new InternalServerError('На сервере произошла ошибка'));
     });
 }
 
-function updateUserAvatar(req, res) {
+function updateUserAvatar(req, res, next) {
   const { avatar } = req.body;
   const userId = req.user._id;
 
@@ -70,7 +72,7 @@ function updateUserAvatar(req, res) {
       res.send(user);
     })
     .catch(() => {
-      throw new InternalServerError('На сервере произошла ошибка');
+      next(new InternalServerError('На сервере произошла ошибка'));
     });
 }
 
