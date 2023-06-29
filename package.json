@@ -5,13 +5,14 @@
     "eslint": "^8.43.0",
     "eslint-plugin-react": "^7.32.2"
   },
-  "author":"Yulia Ageeva",
+  "author": "Yulia Ageeva",
   "scripts": {
     "lint": "npx eslint .",
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
   "dependencies": {
+    "celebrate": "^15.0.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
     "express": "^4.18.2",

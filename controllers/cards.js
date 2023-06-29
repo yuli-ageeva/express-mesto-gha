@@ -15,6 +15,10 @@ function getCards(req, res, next) {
 
 function createCard(req, res, next) {
   const { name, link } = req.body;
+  if (!name || !link) {
+    return next(new RequestError('Не указаны обязательные поля name и link'));
+  }
+
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
       res.status(201).json(card);

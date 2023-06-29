@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 const InternalServerError = require('./errors/InternalServerError');
@@ -21,6 +22,8 @@ app.use((req, res, next) => {
 
 app.use('/users', userRoutes);
 app.use('/cards', cardRoutes);
+
+app.use(errors());
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
