@@ -6,7 +6,7 @@ const InternalServerError = require('../errors/InternalServerError');
 function getCards(req, res, next) {
   Card.find({})
     .then((cards) => {
-      res.status(200).json(cards);
+      res.send(cards);
     })
     .catch(() => {
       next(new InternalServerError('На сервере произошла ошибка'));
@@ -15,13 +15,9 @@ function getCards(req, res, next) {
 
 function createCard(req, res, next) {
   const { name, link } = req.body;
-  if (!name || !link) {
-    return next(new RequestError('Не указаны обязательные поля name и link'));
-  }
-
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
-      res.status(201).json(card);
+      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -39,7 +35,7 @@ function deleteCard(req, res, next) {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
       }
-      res.status(200).json(card);
+      res.send(card);
     })
     .catch(() => {
       next(new InternalServerError('На сервере произошла ошибка'));
@@ -55,7 +51,7 @@ function likeCard(req, res, next) {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
       }
-      res.status(200).json(card);
+      res.send(card);
     })
     .catch(() => {
       next(new InternalServerError('На сервере произошла ошибка'));
@@ -71,7 +67,7 @@ function dislikeCard(req, res, next) {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
       }
-      res.status(200).json(card);
+      res.send(card);
     })
     .catch(() => {
       next(new InternalServerError('На сервере произошла ошибка'));

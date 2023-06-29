@@ -6,7 +6,7 @@ const InternalServerError = require('../errors/InternalServerError');
 function getUsers(req, res) {
   User.find({})
     .then((users) => {
-      res.status(200).json(users);
+      res.send(users);
     })
     .catch(() => {
       throw new InternalServerError('На сервере произошла ошибка');
@@ -20,7 +20,7 @@ function getUserById(req, res) {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
       }
-      res.status(200).json(user);
+      res.send(user);
     })
     .catch(() => {
       throw new InternalServerError('На сервере произошла ошибка');
@@ -31,7 +31,7 @@ function createUser(req, res) {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
-      res.status(201).json(user);
+      res.send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -51,7 +51,7 @@ function updateUserProfile(req, res) {
       if (!user) {
         throw new NotFoundError('Пользователь по указанному _id не найден');
       }
-      res.status(200).json(user);
+      res.send(user);
     })
     .catch(() => {
       throw new InternalServerError('На сервере произошла ошибка');
@@ -67,7 +67,7 @@ function updateUserAvatar(req, res) {
       if (!user) {
         throw new NotFoundError('Пользователь по указанному _id не найден');
       }
-      res.status(200).json(user);
+      res.send(user);
     })
     .catch(() => {
       throw new InternalServerError('На сервере произошла ошибка');
