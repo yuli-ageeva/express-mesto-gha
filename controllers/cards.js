@@ -33,7 +33,12 @@ function deleteCard(req, res, next) {
       }
       res.send(card);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new RequestError('Передано некорректное id карточки'));
+      }
+      return next(err);
+    });
 }
 
 function likeCard(req, res, next) {

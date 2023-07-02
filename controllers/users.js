@@ -42,8 +42,9 @@ function createUser(req, res, next) {
       return next(err);
     });
 }
-function checkRange(n, min, max, errMsg) {
-  if (n < min || n > max) {
+function checkLength(n, min, max, errMsg) {
+  if (n === undefined) return;
+  if (n.length < min || n.length > max) {
     throw new RequestError(errMsg);
   }
 }
@@ -51,8 +52,8 @@ function checkRange(n, min, max, errMsg) {
 function updateUserProfile(req, res, next) {
   const { name, about } = req.body;
   const userId = req.user._id;
-  checkRange(name.length, 2, 30, 'Переданы некорректные данные при обновлении пользователя');
-  checkRange(about.length, 2, 30, 'Переданы некорректные данные при обновлении пользователя');
+  checkLength(name, 2, 30, 'Переданы некорректные данные при обновлении пользователя');
+  checkLength(about, 2, 30, 'Переданы некорректные данные при обновлении пользователя');
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true })
     .then((user) => {
