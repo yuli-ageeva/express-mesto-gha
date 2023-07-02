@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 const errorHandler = require('./middlewares/errorHandler');
+const NotFoundError = require('./errors/NotFoundError');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -23,6 +24,9 @@ app.use(authHelper);
 
 app.use('/users', userRoutes);
 app.use('/cards', cardRoutes);
+app.use((_req, _res) => {
+  throw new NotFoundError('Неизвестный путь');
+});
 app.use(errorHandler);
 
 app.listen(PORT, () => {

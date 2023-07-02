@@ -21,7 +21,12 @@ function getUserById(req, res, next) {
         data: user,
       });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new RequestError('Передано некорректное id пользователя'));
+      }
+      return next(err);
+    });
 }
 
 function createUser(req, res, next) {
@@ -32,16 +37,22 @@ function createUser(req, res, next) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new RequestError('Переданы некорректные данные при создании пользователя'));
-      } else {
-        next(err);
+        return next(new RequestError('Переданы некорректные данные при создании пользователя'));
       }
+      return next(err);
     });
+}
+function checkRange(n, min, max, errMsg) {
+  if (n < min || n > max) {
+    throw new RequestError(errMsg);
+  }
 }
 
 function updateUserProfile(req, res, next) {
   const { name, about } = req.body;
   const userId = req.user._id;
+  checkRange(name.length, 2, 30, 'Переданы некорректные данные при обновлении пользователя');
+  checkRange(about.length, 2, 30, 'Переданы некорректные данные при обновлении пользователя');
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true })
     .then((user) => {

@@ -18,10 +18,9 @@ function createCard(req, res, next) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new RequestError('Переданы некорректные данные при создании карточки'));
-      } else {
-        next(err);
+        return next(new RequestError('Переданы некорректные данные при создании карточки'));
       }
+      return next(err);
     });
 }
 
@@ -48,7 +47,12 @@ function likeCard(req, res, next) {
       }
       res.send(card);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new RequestError('Передано некорректное id карточки'));
+      }
+      return next(err);
+    });
 }
 
 function dislikeCard(req, res, next) {
@@ -62,7 +66,12 @@ function dislikeCard(req, res, next) {
       }
       res.send(card);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new RequestError('Передано некорректное id карточки'));
+      }
+      return next(err);
+    });
 }
 
 module.exports = {
