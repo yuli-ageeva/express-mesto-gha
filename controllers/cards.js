@@ -1,16 +1,13 @@
 const { Card } = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 const RequestError = require('../errors/RequestError');
-const InternalServerError = require('../errors/InternalServerError');
 
 function getCards(req, res, next) {
   Card.find({})
     .then((cards) => {
       res.send(cards);
     })
-    .catch(() => {
-      next(new InternalServerError('На сервере произошла ошибка'));
-    });
+    .catch(next);
 }
 
 function createCard(req, res, next) {
@@ -23,7 +20,7 @@ function createCard(req, res, next) {
       if (err.name === 'ValidationError') {
         next(new RequestError('Переданы некорректные данные при создании карточки'));
       } else {
-        next(new InternalServerError('На сервере произошла ошибка'));
+        next(err);
       }
     });
 }
@@ -37,9 +34,7 @@ function deleteCard(req, res, next) {
       }
       res.send(card);
     })
-    .catch(() => {
-      next(new InternalServerError('На сервере произошла ошибка'));
-    });
+    .catch(next);
 }
 
 function likeCard(req, res, next) {
@@ -53,9 +48,7 @@ function likeCard(req, res, next) {
       }
       res.send(card);
     })
-    .catch(() => {
-      next(new InternalServerError('На сервере произошла ошибка'));
-    });
+    .catch(next);
 }
 
 function dislikeCard(req, res, next) {
@@ -69,9 +62,7 @@ function dislikeCard(req, res, next) {
       }
       res.send(card);
     })
-    .catch(() => {
-      next(new InternalServerError('На сервере произошла ошибка'));
-    });
+    .catch(next);
 }
 
 module.exports = {

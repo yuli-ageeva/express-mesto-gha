@@ -1,16 +1,13 @@
 const { User } = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const RequestError = require('../errors/RequestError');
-const InternalServerError = require('../errors/InternalServerError');
 
 function getUsers(req, res, next) {
   User.find({})
     .then((users) => {
       res.send(users);
     })
-    .catch(() => {
-      next(new InternalServerError('На сервере произошла ошибка'));
-    });
+    .catch(next);
 }
 
 function getUserById(req, res, next) {
@@ -24,9 +21,7 @@ function getUserById(req, res, next) {
         data: user,
       });
     })
-    .catch(() => {
-      next(new InternalServerError('На сервере произошла ошибка'));
-    });
+    .catch(next);
 }
 
 function createUser(req, res, next) {
@@ -55,9 +50,7 @@ function updateUserProfile(req, res, next) {
       }
       res.send(user);
     })
-    .catch(() => {
-      next(new InternalServerError('На сервере произошла ошибка'));
-    });
+    .catch(next);
 }
 
 function updateUserAvatar(req, res, next) {
@@ -71,9 +64,7 @@ function updateUserAvatar(req, res, next) {
       }
       res.send(user);
     })
-    .catch(() => {
-      next(new InternalServerError('На сервере произошла ошибка'));
-    });
+    .catch(next);
 }
 
 module.exports = {
