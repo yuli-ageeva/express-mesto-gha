@@ -33,7 +33,7 @@ function createUser(req, res, next) {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
-      res.send(user);
+      res.status(201).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -62,7 +62,12 @@ function updateUserProfile(req, res, next) {
       }
       res.send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return next(new RequestError('Переданы некорректные данные при обновлении пользователя'));
+      }
+      return next(err);
+    });
 }
 
 function updateUserAvatar(req, res, next) {
@@ -76,7 +81,12 @@ function updateUserAvatar(req, res, next) {
       }
       res.send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return next(new RequestError('Переданы некорректные данные при обновлении аватара'));
+      }
+      return next(err);
+    });
 }
 
 module.exports = {
