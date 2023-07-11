@@ -1,6 +1,10 @@
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { User } = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const RequestError = require('../errors/RequestError');
+const AuthError = require('../errors/AuthError');
+const { validate } = require('../utils/userValidator');
 
 function getUsers(req, res, next) {
   User.find({})
@@ -29,19 +33,57 @@ function getUserById(req, res, next) {
     });
 }
 
-function createUser(req, res, next) {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+function getUserProfile(req, res, next) {
+  const userId = req.user._id;
+
+  User.findById(userId)
     .then((user) => {
-      res.status(201).send(user);
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден');
+      }
+
+      res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new RequestError('Переданы некорректные данные при создании пользователя'));
+      if (err.name === 'CastError') {
+        return next(new RequestError('Передано некорректное id пользователя'));
       }
       return next(err);
     });
 }
+
+function createUser(req, res, next) {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  const saltRounds = 10;
+  const { error } = validate({
+    name, about, avatar, email, password,
+  });
+  if (error) {
+    return next(new RequestError('Переданы некорректные данные пользователя'));
+  }
+
+  bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
+    if (err) {
+      return next(new RequestError('Ошибка при хешировании пароля'));
+    }
+
+    User.create({
+      name, about, avatar, email, password: hashedPassword,
+    })
+      .then((user) => {
+        res.status(201).send(user);
+      })
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          return next(new RequestError('Переданы некорректные данные при создании пользователя'));
+        }
+        return next(err);
+      });
+  });
+}
+
 function checkLength(n, min, max, errMsg) {
   if (n === undefined) return;
   if (n.length < min || n.length > max) {
@@ -89,10 +131,39 @@ function updateUserAvatar(req, res, next) {
     });
 }
 
+function login(req, res, next) {
+  const { email, password } = req.body;
+
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return next(new AuthError('Неправильные почта или пароль'));
+      }
+
+      bcrypt.compare(password, user.password, (err, isMatch) => {
+        if (err) {
+          return next(new RequestError('Ошибка при проверке пароля'));
+        }
+
+        if (!isMatch) {
+          return next(new AuthError('Неправильные почта или пароль'));
+        }
+        const payload = { _id: user._id };
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+        res.cookie('jwt', token, { httpOnly: true });
+        res.status(200).send({ message: 'Аутентификация прошла успешно' });
+      });
+    })
+    .catch(next);
+}
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   updateUserProfile,
   updateUserAvatar,
+  login,
+  getUserProfile,
 };

@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 const errorHandler = require('./middlewares/errorHandler');
+const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
+const { login, createUser } = require('./controllers/users');
 
 const app = express();
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
@@ -12,18 +14,13 @@ mongoose.connect(DB_URL, {
   useNewUrlParser: true,
 });
 
-const authHelper = function (req, res, next) {
-  req.user = {
-    _id: '649d75d38b25b169d720a41b',
-  };
-  next();
-};
-
 app.use(express.json());
-app.use(authHelper);
 
-app.use('/users', userRoutes);
-app.use('/cards', cardRoutes);
+app.post('/signin', login);
+app.post('/signup', createUser);
+
+app.use('/users', auth, userRoutes);
+app.use('/cards', auth, cardRoutes);
 app.use((_req, _res) => {
   throw new NotFoundError('Неизвестный путь');
 });
