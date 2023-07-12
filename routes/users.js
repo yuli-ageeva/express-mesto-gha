@@ -7,9 +7,9 @@ const {
   validateUpdateAvatar, validateIdUser,
 } = require('../utils/userValidator');
 
+router.get('/me', userController.getUserProfile);
 router.get('/', userController.getUsers);
 router.get('/:userId', validateIdUser, userController.getUserById);
-router.get('/me', userController.getUserProfile);
 router.patch('/me', validateUpdateUser, userController.updateUserProfile);
 router.patch('/me/avatar', validateUpdateAvatar, userController.updateUserAvatar);
 
