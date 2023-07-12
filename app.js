@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
+const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 const errorHandler = require('./middlewares/errorHandler');
@@ -12,13 +13,16 @@ const { validateUserLogin, validateUserCreation } = require('./utils/userValidat
 
 const app = express();
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+
 dotenv.config();
 process.env.JWT_SECRET = 'strong-secret-key';
+
 mongoose.connect(DB_URL, {
   useNewUrlParser: true,
 });
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post('/signin', validateUserLogin, login);
 app.post('/signup', validateUserCreation, createUser);
