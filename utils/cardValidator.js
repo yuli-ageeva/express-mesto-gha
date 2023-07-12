@@ -15,7 +15,6 @@ const validateCardId = celebrate({
   }),
 });
 
-
 module.exports = {
   validateCreateCard,
   validateCardId,

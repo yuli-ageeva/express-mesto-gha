@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 const cardController = require('../controllers/cards');
-const {validateCreateCard, validateCardId} = require("../utils/cardValidator");
+const { validateCreateCard, validateCardId } = require('../utils/cardValidator');
 
 router.get('/', cardController.getCards);
 router.post('/', validateCreateCard, cardController.createCard);

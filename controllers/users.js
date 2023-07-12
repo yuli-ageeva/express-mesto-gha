@@ -4,8 +4,7 @@ const { User } = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const RequestError = require('../errors/RequestError');
 const AuthError = require('../errors/AuthError');
-const { validate } = require('../utils/userValidator');
-const ConflictError = require("../errors/ConflictError");
+const ConflictError = require('../errors/ConflictError');
 
 function getUsers(req, res, next) {
   User.find({})
@@ -60,23 +59,25 @@ function createUser(req, res, next) {
   const saltRounds = 10;
 
   bcrypt.hash(password, saltRounds)
-    .then((hash) =>
-    User.create({
-      name, about, avatar, email:req.body.email, password:hash,
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
     }))
-      .then((user) => {
-        res.status(201).send({ message: 'Регистрация прошла успешно',
-          _id: user._id,
-          email: user.email});
-      })
-      .catch((err) => {
-        if (err.code === 11000) {
-          next(new ConflictError('Пользователь с данным email уже зарегистрирован'))}
-          else if (err.name === 'ValidationError') {
-          return next(new RequestError('Переданы некорректные данные при создании пользователя'));
-        }
-        return next(err);
-      })
+    .then((user) => {
+      res.status(201).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
+    })
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с данным email уже зарегистрирован'));
+      } else if (err.name === 'ValidationError') {
+        return next(new RequestError('Переданы некорректные данные при создании пользователя'));
+      }
+      return next(err);
+    });
 }
 
 function checkLength(n, min, max, errMsg) {
@@ -129,13 +130,13 @@ function updateUserAvatar(req, res, next) {
 function login(req, res, next) {
   const { email, password } = req.body;
 
-  User.findOne({ email })
+  User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         return next(new AuthError('Неправильные почта или пароль'));
       }
 
-      bcrypt.compare(password, user.password, (err, isMatch) => {
+      return bcrypt.compare(password, user.password, (err, isMatch) => {
         if (err) {
           return next(new RequestError('Ошибка при проверке пароля'));
         }
@@ -147,7 +148,7 @@ function login(req, res, next) {
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         res.cookie('jwt', token, { httpOnly: true });
-        res.status(200).send({ message: 'Аутентификация прошла успешно' });
+        return res.status(200).send({ message: 'Аутентификация прошла успешно' });
       });
     })
     .catch(next);

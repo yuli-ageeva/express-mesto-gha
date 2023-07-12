@@ -1,16 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 const errorHandler = require('./middlewares/errorHandler');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
-const {login, createUser} = require('./controllers/users');
-const {validateUserLogin, validateUserCreation} = require("./utils/userValidator");
-const {errors} = require('celebrate');
+const { login, createUser } = require('./controllers/users');
+const { validateUserLogin, validateUserCreation } = require('./utils/userValidator');
 
 const app = express();
-const {PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb'} = process.env;
+const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
 mongoose.connect(DB_URL, {
   useNewUrlParser: true,

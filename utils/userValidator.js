@@ -1,4 +1,5 @@
-const { celebrate, Joi, Segments} = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
+
 const avatarRegex = /^(http|https):\/\/(?:www\.)?[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]+(?:#.+)?$/;
 
 const validateUserCreation = celebrate({
@@ -29,7 +30,6 @@ const validateUpdateAvatar = celebrate({
     avatar: Joi.string().required().regex(avatarRegex),
   }),
 });
-
 
 module.exports = {
   validateUserCreation,

@@ -4,7 +4,8 @@ const router = express.Router();
 const userController = require('../controllers/users');
 const {
   validateUpdateUser,
-  validateUpdateAvatar} = require('../utils/userValidator')
+  validateUpdateAvatar,
+} = require('../utils/userValidator');
 
 router.get('/', userController.getUsers);
 router.get('/:userId', userController.getUserById);
