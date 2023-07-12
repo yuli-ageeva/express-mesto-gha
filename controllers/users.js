@@ -5,6 +5,7 @@ const NotFoundError = require('../errors/NotFoundError');
 const RequestError = require('../errors/RequestError');
 const AuthError = require('../errors/AuthError');
 const { validate } = require('../utils/userValidator');
+const ConflictError = require("../errors/ConflictError");
 
 function getUsers(req, res, next) {
   User.find({})
@@ -57,31 +58,25 @@ function createUser(req, res, next) {
     name, about, avatar, email, password,
   } = req.body;
   const saltRounds = 10;
-  const { error } = validate({
-    name, about, avatar, email, password,
-  });
-  if (error) {
-    return next(new RequestError('Переданы некорректные данные пользователя'));
-  }
 
-  bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
-    if (err) {
-      return next(new RequestError('Ошибка при хешировании пароля'));
-    }
-
+  bcrypt.hash(password, saltRounds)
+    .then((hash) =>
     User.create({
-      name, about, avatar, email, password: hashedPassword,
-    })
+      name, about, avatar, email:req.body.email, password:hash,
+    }))
       .then((user) => {
-        res.status(201).send(user);
+        res.status(201).send({ message: 'Регистрация прошла успешно',
+          _id: user._id,
+          email: user.email});
       })
       .catch((err) => {
-        if (err.name === 'ValidationError') {
+        if (err.code === 11000) {
+          next(new ConflictError('Пользователь с данным email уже зарегистрирован'))}
+          else if (err.name === 'ValidationError') {
           return next(new RequestError('Переданы некорректные данные при создании пользователя'));
         }
         return next(err);
-      });
-  });
+      })
 }
 
 function checkLength(n, min, max, errMsg) {

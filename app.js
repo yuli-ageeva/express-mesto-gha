@@ -5,10 +5,12 @@ const cardRoutes = require('./routes/cards');
 const errorHandler = require('./middlewares/errorHandler');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
-const { login, createUser } = require('./controllers/users');
+const {login, createUser} = require('./controllers/users');
+const {validateUserLogin, validateUserCreation} = require("./utils/userValidator");
+const {errors} = require('celebrate');
 
 const app = express();
-const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+const {PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb'} = process.env;
 
 mongoose.connect(DB_URL, {
   useNewUrlParser: true,
@@ -16,14 +18,16 @@ mongoose.connect(DB_URL, {
 
 app.use(express.json());
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', validateUserLogin, login);
+app.post('/signup', validateUserCreation, createUser);
 
 app.use('/users', auth, userRoutes);
 app.use('/cards', auth, cardRoutes);
 app.use((_req, _res) => {
   throw new NotFoundError('Неизвестный путь');
 });
+
+app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, () => {

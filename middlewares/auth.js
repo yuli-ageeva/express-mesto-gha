@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const AuthError = require('../errors/AuthError');
 
-const authMiddleware = (req, res, next) => {
+const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
@@ -12,7 +12,7 @@ const authMiddleware = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, 'your-secret-key'); // Замените 'your-secret-key' на ваш секретный ключ JWT
+    payload = jwt.verify(token, 'your-secret-key');
   } catch (err) {
     throw new AuthError('Необходима авторизация');
   }
@@ -21,4 +21,4 @@ const authMiddleware = (req, res, next) => {
   next();
 };
 
-module.exports = authMiddleware;
+module.exports = auth;
