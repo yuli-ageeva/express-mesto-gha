@@ -41,7 +41,6 @@ function getUserProfile(req, res, next) {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
       }
-
       res.send(user);
     })
     .catch((err) => {

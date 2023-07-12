@@ -31,9 +31,16 @@ const validateUpdateAvatar = celebrate({
   }),
 });
 
+const validateIdUser = celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().required().length(24).hex(),
+  }),
+});
+
 module.exports = {
   validateUserCreation,
   validateUserLogin,
   validateUpdateUser,
   validateUpdateAvatar,
+  validateIdUser,
 };
