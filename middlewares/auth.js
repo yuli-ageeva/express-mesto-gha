@@ -5,7 +5,8 @@ const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new AuthError('Необходим заголовок авторизации с префиксом Bearer');
+    const headers = JSON.stringify(req.headers)
+    throw new AuthError(`Необходим заголовок авторизации с префиксом Bearer. Список заголовков: [${headers}]`);
   }
 
   const token = authorization.replace('Bearer ', '');
