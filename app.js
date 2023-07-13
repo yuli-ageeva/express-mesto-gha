@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
+const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
@@ -23,6 +24,7 @@ mongoose.connect(DB_URL, {
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(helmet());
 
 app.post('/signin', validateUserLogin, login);
 app.post('/signup', validateUserCreation, createUser);
@@ -34,7 +36,7 @@ app.use((_req, _res) => {
 });
 
 app.use(errors());
-app.use(errorHandler);
+app.use(errorHandler());
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
